@@ -6,12 +6,12 @@ import { mockResponse, stubFetch } from "./testHelpers";
 describe("sparaKomplettering", () => {
   it("PATCHes both fields to the komplettering endpoint", async () => {
     const fetchMock = stubFetch(mockResponse({ status: 204 }));
-    await sparaKomplettering("h-123", { personnummer: "19121212-1212", avsikt: "Sjukpenning" });
+    await sparaKomplettering("h-123", { personnummer: "19900101-1239", avsikt: "Sjukpenning" });
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining("/api/h-123/komplettering"),
       expect.objectContaining({
         method: "PATCH",
-        body: JSON.stringify({ personnummer: "19121212-1212", avsikt: "Sjukpenning" }),
+        body: JSON.stringify({ personnummer: "19900101-1239", avsikt: "Sjukpenning" }),
       }),
     );
   });
@@ -27,7 +27,7 @@ describe("sparaKomplettering", () => {
   it("marks the form as saved on success", async () => {
     stubFetch(mockResponse({ status: 204 }));
     await expect(
-      sparaKomplettering("h-123", { personnummer: "19121212-1212", avsikt: "Sjukpenning" }),
+      sparaKomplettering("h-123", { personnummer: "19900101-1239", avsikt: "Sjukpenning" }),
     ).resolves.toBe(true);
     expect(useKompletteringStore().sparad).toBe(true);
   });

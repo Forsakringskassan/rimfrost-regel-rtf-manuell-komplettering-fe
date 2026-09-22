@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { valideraForKlarmarkering, valideraForSpara } from "../validering";
 
-const GILTIGT_PERSONNUMMER = "19121212-1212";
+const GILTIGT_PERSONNUMMER = "19900101-1239";
 
 describe("valideraForSpara", () => {
   it.each([
@@ -14,7 +14,7 @@ describe("valideraForSpara", () => {
 
   it("accepts a personnummer that is not finished yet", () => {
     // Half-typed work is exactly what Spara is for; only Klarmarkera insists.
-    expect(valideraForSpara({ personnummer: "1912", avsikt: "" })).toBeNull();
+    expect(valideraForSpara({ personnummer: "1990", avsikt: "" })).toBeNull();
   });
 
   it.each([
@@ -47,7 +47,7 @@ describe("valideraForKlarmarkering", () => {
   });
 
   it.each([
-    ["a failing check digit", "19121212-1213"],
+    ["a failing check digit", "19900101-1234"],
     ["a made-up date", "20239999-1212"],
     ["not a number at all", "inget personnummer"],
   ])("rejects a personnummer with %s", (_name, personnummer) => {
@@ -57,7 +57,7 @@ describe("valideraForKlarmarkering", () => {
   });
 
   it("accepts the shorthand forms a handläggare may type", () => {
-    for (const personnummer of ["121212-1212", "121212+1212"]) {
+    for (const personnummer of ["900101-1239", "900101+1239"]) {
       expect(valideraForKlarmarkering({ personnummer, avsikt: "Sjukpenning" })).toBeNull();
     }
   });
