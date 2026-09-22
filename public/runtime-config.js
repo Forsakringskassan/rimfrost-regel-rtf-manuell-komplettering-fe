@@ -1,0 +1,1 @@
+window.__RTF_MANUELL_KOMPLETTERING_FE_ENV__ = {};
