@@ -35,12 +35,11 @@ const UTAN_KONTROLLSIFFRA = {
 };
 
 export function ensureValidatorsRegistered(): void {
-  if (registered) {
-    return;
-  }
-  registered = true;
-  for (const validator of availableValidators) {
-    ValidationService.registerValidator(validator);
+  if (!registered) {
+    registered = true;
+    for (const validator of availableValidators) {
+      ValidationService.registerValidator(validator);
+    }
   }
   ValidationService.registerValidator(UTAN_KONTROLLSIFFRA);
 }
