@@ -14,9 +14,9 @@ describe("fetchKomplettering", () => {
   });
 
   it("returns the loaded data", async () => {
-    stubFetch(mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }));
+    stubFetch(mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }));
     await expect(fetchKomplettering("h-123")).resolves.toEqual({
-      personnummer: "19900101-1239",
+      personnummer: "19900101-1234",
       avsikt: "Sjukpenning",
     });
   });

@@ -1,4 +1,4 @@
-import { parsePersonnummerLuhn } from "@fkui/logic";
+import { parsePersonnummer } from "@fkui/logic";
 import {
   INGET_ATT_SPARA,
   OFULLSTANDIGA_UPPGIFTER,
@@ -34,19 +34,21 @@ export function valideraForSpara(data: RtfKompletteringData): string | null {
 }
 
 /**
- * Klarmarkera asks for both fields, and for the personnummer to be a real one:
- * `done` closes the task on what is registered, so a number that fails its
- * check digit would be registered on the yrkande with nothing left to catch it.
+ * Klarmarkera asks for both fields, and for the personnummer to be shaped like
+ * one: `done` closes the task on what is registered, so a value the rule
+ * service cannot read at all would be registered on the yrkande with nothing
+ * left to catch it.
  *
- * The Luhn check is the same one FPersonnummerTextField applies in the field,
- * from the same @fkui/logic function, so the two never disagree about what a
- * personnummer is.
+ * The check digit is deliberately not verified, so the numbers the test
+ * environments hand out go through. config/validation.ts drops the same check
+ * from the field, so the two still agree; a mistyped digit now reaches the rule
+ * service, which is the only thing left that can catch it.
  */
 export function valideraForKlarmarkering(data: RtfKompletteringData): string | null {
   if (!harVarde(data.personnummer) || !harVarde(data.avsikt)) {
     return OFULLSTANDIGA_UPPGIFTER;
   }
-  if (!parsePersonnummerLuhn(data.personnummer)) {
+  if (!parsePersonnummer(data.personnummer)) {
     return OGILTIGT_PERSONNUMMER;
   }
   return null;

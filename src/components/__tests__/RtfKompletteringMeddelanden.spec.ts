@@ -61,10 +61,10 @@ describe("RtfKomplettering meddelanden", () => {
     },
   );
 
-  it("names the personnummer as the problem when it fails its check digit", async () => {
+  it("names the personnummer as the problem when it is not one", async () => {
     const { wrapper } = await mountaMedUnderlag();
 
-    await wrapper.find("input").setValue("19900101-1234");
+    await wrapper.find("input").setValue("19900101-123");
     await wrapper.find("textarea").setValue("Sjukpenning");
     await knapp(wrapper, "Klarmarkera")?.trigger("click");
     await flushPromises();

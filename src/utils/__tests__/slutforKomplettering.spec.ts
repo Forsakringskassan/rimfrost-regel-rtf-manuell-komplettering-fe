@@ -5,7 +5,7 @@ import { useKompletteringStore } from "../../stores/KompletteringStore";
 import { KlarmarkeraResultat } from "../../types";
 import { mockResponse, stubFetch } from "./testHelpers";
 
-const DATA = { personnummer: "19900101-1239", avsikt: "Sjukpenning" };
+const DATA = { personnummer: "19900101-1234", avsikt: "Sjukpenning" };
 
 function methodsOf(fetchMock: ReturnType<typeof stubFetch>) {
   return fetchMock.mock.calls.map((call) => call[1]?.method);
@@ -18,7 +18,7 @@ describe("slutforKomplettering", () => {
   it.each([
     ["both fields empty", { personnummer: "", avsikt: "" }],
     ["personnummer empty", { personnummer: "", avsikt: "Sjukpenning" }],
-    ["avsikt empty", { personnummer: "19900101-1239", avsikt: "" }],
+    ["avsikt empty", { personnummer: "19900101-1234", avsikt: "" }],
     ["both null", { personnummer: null, avsikt: null }],
     ["whitespace only", { personnummer: "  ", avsikt: "   " }],
   ])("reports incomplete data without calling the BFF: %s", async (_name, data) => {
@@ -32,11 +32,11 @@ describe("slutforKomplettering", () => {
     expect(useKompletteringStore().error).toContain("Uppgifterna är ofullständiga");
   });
 
-  it("rejects a personnummer that fails its check digit without calling the BFF", async () => {
+  it("rejects a personnummer that is not one without calling the BFF", async () => {
     const fetchMock = stubFetch();
 
     await expect(
-      slutforKomplettering("h-123", { personnummer: "19900101-1234", avsikt: "Sjukpenning" }),
+      slutforKomplettering("h-123", { personnummer: "19900101-123", avsikt: "Sjukpenning" }),
     ).resolves.toBe(KlarmarkeraResultat.OFULLSTANDIG);
 
     expect(fetchMock).not.toHaveBeenCalled();
