@@ -3,6 +3,15 @@ import { federation } from "@module-federation/vite";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
 
+const SERVER = {
+  port: 3032,
+  strictPort: true,
+  cors: true,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+  },
+};
+
 export default defineConfig({
   plugins: [
     federation({
@@ -13,14 +22,18 @@ export default defineConfig({
       exposes: {
         "./RtfKomplettering": "./src/components/RtfKomplettering.vue",
       },
+      // No requiredVersion: the ranges belong in package.json, and a second copy
+      // here drifts on every Renovate bump — a mismatch then breaks the
+      // singleton dedup at runtime in the portal, which is the one thing this
+      // block exists to guarantee. singleton: true is what does the work.
       shared: {
-        vue: { singleton: true, requiredVersion: "^3.5.24" },
-        "@fkui/vue": { singleton: true, requiredVersion: "^6.24.1" },
+        vue: { singleton: true },
+        "@fkui/vue": { singleton: true },
         // @fkui/logic holds ValidationService, the module-level registry the
         // portal's ValidationPlugin writes the validators into. A second copy
         // here means the fields validate against an empty registry.
-        "@fkui/logic": { singleton: true, requiredVersion: "^6.24.1" },
-        pinia: { singleton: true, requiredVersion: "^3.0.4" },
+        "@fkui/logic": { singleton: true },
+        pinia: { singleton: true },
       },
       manifest: true,
       publicPath: "auto",
@@ -29,18 +42,12 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  preview: {
-    // Same port as the dev server below — you never run both at once, and
-    // 3033 is already bekraftabeslut-fe's dev port (see the portal's
-    // remotes.json devEntry), which strictPort would turn into a hard failure.
-    port: 3032,
-    strictPort: true,
-    cors: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-  },
+  // Shared by dev and preview: you never run both at once, and 3033 is already
+  // bekraftabeslut-fe's dev port (see the portal's remotes.json devEntry),
+  // which strictPort would turn into a hard failure.
+  preview: SERVER,
   server: {
+    ...SERVER,
     // With VITE_BFF_URL unset the app fetches relative "/api/..." paths, which
     // this proxy forwards to the BFF — same origin, so no CORS setup needed.
     proxy: {
@@ -48,12 +55,6 @@ export default defineConfig({
         target: "http://localhost:9004",
         changeOrigin: true,
       },
-    },
-    port: 3032,
-    strictPort: true,
-    cors: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
     },
   },
   base: "./",

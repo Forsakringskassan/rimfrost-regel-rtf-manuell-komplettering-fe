@@ -1,4 +1,4 @@
-import { bffFetch, kompletteringPath } from "./bffClient";
+import { assertOk, bffFetch, kompletteringPath } from "./bffClient";
 import { useKompletteringStore } from "../stores/KompletteringStore";
 import type { RtfKompletteringData } from "../types";
 
@@ -32,9 +32,7 @@ export async function sparaKomplettering(
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    assertOk(response);
 
     store.sparad = true;
     return true;

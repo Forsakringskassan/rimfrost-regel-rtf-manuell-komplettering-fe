@@ -24,5 +24,3 @@ const handlaggningId = props.handlaggningId || env.devHandlaggningId;
   </f-layout-application-template>
   <RtfKomplettering v-else :handlaggning-id="handlaggningId" />
 </template>
-
-<style scoped></style>

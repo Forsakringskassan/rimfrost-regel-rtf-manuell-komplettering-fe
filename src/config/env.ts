@@ -1,8 +1,9 @@
 const RUNTIME_GLOBAL = "__RTF_MANUELL_KOMPLETTERING_FE_ENV__";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- the global is injected at runtime via runtime-config.js and has no type definition
-function readRuntimeGlobal(): any {
-  return (window as any)[RUNTIME_GLOBAL] ?? {};
+type RuntimeEnv = Partial<Record<string, string>>;
+
+function readRuntimeGlobal(): RuntimeEnv {
+  return (window as unknown as Record<string, RuntimeEnv | undefined>)[RUNTIME_GLOBAL] ?? {};
 }
 
 /**
@@ -12,8 +13,22 @@ function readRuntimeGlobal(): any {
  * standalone run.
  */
 function runtimeConfigHasRun(): boolean {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above
-  return (window as any)[RUNTIME_GLOBAL] !== undefined;
+  return RUNTIME_GLOBAL in window;
+}
+
+/**
+ * Resolves the whole config in one place, so a new variable is added once
+ * rather than here and again in ensureEnvLoaded — where forgetting it would
+ * mean the variable silently never picks up its runtime value inside a Module
+ * Federation host, the very case this module exists for.
+ */
+function readEnv() {
+  const runtime = readRuntimeGlobal();
+  return {
+    bffUrl: runtime.RUNTIME_BFF_URL || import.meta.env.VITE_BFF_URL || "",
+    devHandlaggningId:
+      runtime.RUNTIME_DEV_HANDLAGGNING_ID || import.meta.env.VITE_DEV_HANDLAGGNING_ID || "",
+  };
 }
 
 /**
@@ -30,11 +45,7 @@ function runtimeConfigHasRun(): boolean {
  * remote inside a shell that shares one window with it, so a shared global
  * would let this app's config leak into — or be clobbered by — the shell's.
  */
-export const env = {
-  bffUrl: readRuntimeGlobal().RUNTIME_BFF_URL || import.meta.env.VITE_BFF_URL || "",
-  devHandlaggningId:
-    readRuntimeGlobal().RUNTIME_DEV_HANDLAGGNING_ID || import.meta.env.VITE_DEV_HANDLAGGNING_ID || "",
-};
+export const env = readEnv();
 
 // Standalone (npm run dev / preview): index.html's own <script> tag has
 // already run runtime-config.js before this module executes, so `env`
@@ -69,10 +80,13 @@ export function ensureEnvLoaded(): Promise<void> {
         resolve();
       }
     }).then(() => {
-      const runtimeEnv = readRuntimeGlobal();
-      env.bffUrl = runtimeEnv.RUNTIME_BFF_URL || env.bffUrl;
-      env.devHandlaggningId = runtimeEnv.RUNTIME_DEV_HANDLAGGNING_ID || env.devHandlaggningId;
+      Object.assign(env, readEnv());
     });
   }
   return runtimeEnvReady;
 }
+
+// Started at import time rather than on the first BFF call: the promise is
+// memoized, so the later await in bffFetch is free, and the script download
+// overlaps app startup instead of being serialized ahead of the first GET.
+void ensureEnvLoaded();

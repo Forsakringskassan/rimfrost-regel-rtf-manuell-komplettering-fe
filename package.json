@@ -24,11 +24,9 @@
     "@fkui/design": "^6.24.1",
     "@fkui/logic": "^6.24.0",
     "@fkui/theme-default": "^6.24.1",
-    "@fkui/user-lib-design": "^1.2.0",
     "@fkui/vue": "^6.24.1",
     "pinia": "^3.0.4",
-    "vue": "^3.5.24",
-    "vue-router": "^4.6.3"
+    "vue": "^3.5.24"
   },
   "devDependencies": {
     "@module-federation/vite": "^1.15.2",

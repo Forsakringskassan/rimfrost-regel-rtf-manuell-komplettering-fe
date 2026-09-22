@@ -38,7 +38,7 @@ handlaggningId that has an open komplettering task in the OUL.
 |---|---|
 | `npm run dev` | Dev server on 3032 |
 | `npm run build` | Type-check and build to `dist/` |
-| `npm run preview` | Build, then serve the result on 3033 |
+| `npm run preview` | Build, then serve the result on 3032 |
 | `npm test` | Vitest in watch mode |
 | `npm run test:run` | Vitest once |
 | `npm run test:coverage` | Vitest once with coverage |

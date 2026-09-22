@@ -1,26 +1,18 @@
-import { flushPromises, mount } from "@vue/test-utils";
-import { createPinia, setActivePinia } from "pinia";
-import { ValidationPlugin } from "@fkui/vue";
+import { flushPromises } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import RtfKomplettering from "../RtfKomplettering.vue";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
-import { TOMT_UNDERLAG, mockResponse, stubFetch } from "../../utils/__tests__/testHelpers";
+import {
+  TOMT_UNDERLAG,
+  knapp,
+  mockResponse,
+  montera,
+  stubFetch,
+} from "../../utils/__tests__/testHelpers";
 
+/** The id montera() defaults to; asserted against in the request paths. */
 const HANDLAGGNING_ID = "h-123";
 
-function mountComponent(handlaggningId: string | null = HANDLAGGNING_ID) {
-  // Activating the pinia explicitly lets assertions in the test body read the
-  // very store instance the component writes to.
-  const pinia = createPinia();
-  setActivePinia(pinia);
-  return mount(RtfKomplettering, {
-    props: { handlaggningId },
-    global: { plugins: [pinia, ValidationPlugin] },
-    attachTo: document.body,
-  });
-}
-
-type Wrapper = ReturnType<typeof mountComponent>;
+type Wrapper = ReturnType<typeof montera>;
 
 /**
  * Submits the real form, so FKUI's validation gets its say, then waits for the
@@ -43,9 +35,17 @@ async function fyllIFormular(wrapper: Wrapper): Promise<void> {
   await wrapper.find("textarea").setValue("Sjukpenning");
 }
 
-function knapp(wrapper: Wrapper, text: string) {
-  return wrapper.findAll("button").find((button) => button.text().includes(text));
+/**
+ * FTooltip emits toggle for both directions, so the tests drive it the way the
+ * component reads it — a close must not count as an open.
+ */
+async function vaxlaTooltip(wrapper: Wrapper, isOpen: boolean): Promise<void> {
+  wrapper.findComponent({ name: "FTooltip" }).vm.$emit("toggle", { isOpen });
+  await flushPromises();
 }
+
+const oppna = (wrapper: Wrapper) => vaxlaTooltip(wrapper, true);
+const stang = (wrapper: Wrapper) => vaxlaTooltip(wrapper, false);
 
 /** Counting only the description requests keeps this immune to unrelated calls. */
 function beskrivningAnrop(fetchMock: ReturnType<typeof stubFetch>) {
@@ -57,7 +57,7 @@ function beskrivningAnrop(fetchMock: ReturnType<typeof stubFetch>) {
 describe("RtfKomplettering", () => {
   it("loads the komplettering for the given handlaggning on mount", async () => {
     const fetchMock = stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    mountComponent();
+    montera();
     await flushPromises();
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -68,7 +68,7 @@ describe("RtfKomplettering", () => {
 
   it("shows the loaded values in the form", async () => {
     stubFetch(mockResponse({ body: { personnummer: "19121212-1212", avsikt: "Sjukpenning" } }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     // FKUI renders a personnummer in the 10-digit form it asks people to type,
@@ -79,7 +79,7 @@ describe("RtfKomplettering", () => {
 
   it("renders an empty form when the yrkande has no values yet", async () => {
     stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     expect(wrapper.find("form").exists()).toBe(true);
@@ -89,7 +89,7 @@ describe("RtfKomplettering", () => {
 
   it("shows an error and no form when no handlaggning was passed", async () => {
     const fetchMock = stubFetch();
-    const wrapper = mountComponent(null);
+    const wrapper = montera(null);
     await flushPromises();
 
     expect(fetchMock).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe("RtfKomplettering", () => {
 
   it("shows an error instead of hiding the failure when loading fails", async () => {
     stubFetch(mockResponse({ ok: false, status: 500 }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     expect(wrapper.text()).toContain("Kunde inte hämta uppgiftsdata");
@@ -107,7 +107,7 @@ describe("RtfKomplettering", () => {
 
   it("offers no form when the load failed, so nothing can be saved over the yrkande", async () => {
     stubFetch(mockResponse({ ok: false, status: 500 }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     // An empty form here would let Spara PATCH two empty strings over whatever
@@ -118,18 +118,12 @@ describe("RtfKomplettering", () => {
 
   it("does not inherit state from a previous task on the host's shared store", async () => {
     // The store is the host's Pinia singleton and outlives a single mount.
-    const pinia = createPinia();
-    setActivePinia(pinia);
     const store = useKompletteringStore();
     store.sparad = true;
     store.error = "Fel från förra uppgiften";
 
     stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    const wrapper = mount(RtfKomplettering, {
-      props: { handlaggningId: HANDLAGGNING_ID },
-      global: { plugins: [pinia, ValidationPlugin] },
-      attachTo: document.body,
-    });
+    const wrapper = montera();
     await flushPromises();
 
     expect(store.sparad).toBe(false);
@@ -142,7 +136,7 @@ describe("RtfKomplettering", () => {
       mockResponse({ body: { personnummer: "19121212-1212", avsikt: "Sjukpenning" } }),
       mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Föräldrapenning" } }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     await wrapper.setProps({ handlaggningId: "h-456" });
@@ -157,7 +151,7 @@ describe("RtfKomplettering", () => {
       mockResponse({ body: TOMT_UNDERLAG }),
       mockResponse({ status: 204 }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     await fyllIFormular(wrapper);
@@ -177,7 +171,7 @@ describe("RtfKomplettering", () => {
       mockResponse({ body: TOMT_UNDERLAG }),
       mockResponse({ status: 204 }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     // Half-filled work is the case Spara exists for.
@@ -194,7 +188,7 @@ describe("RtfKomplettering", () => {
 
   it("Spara refuses an entirely empty form rather than blanking the yrkande", async () => {
     const fetchMock = stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     await knapp(wrapper, "Spara")?.trigger("click");
@@ -208,7 +202,7 @@ describe("RtfKomplettering", () => {
 
   it("clears the saved marker as soon as a field is edited again", async () => {
     stubFetch(mockResponse({ body: TOMT_UNDERLAG }), mockResponse({ status: 204 }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     await fyllIFormular(wrapper);
@@ -226,7 +220,7 @@ describe("RtfKomplettering", () => {
       mockResponse({ status: 204 }),
       mockResponse({ status: 204 }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
     await fyllIFormular(wrapper);
 
@@ -244,7 +238,7 @@ describe("RtfKomplettering", () => {
 
   it("blocks completion and points at the empty fields when nothing is filled in", async () => {
     const fetchMock = stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
     await submitFormular(wrapper, () => {
@@ -266,7 +260,7 @@ describe("RtfKomplettering", () => {
       mockResponse({ status: 204 }),
       mockResponse({ status: 204 }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
     await fyllIFormular(wrapper);
 
@@ -295,17 +289,31 @@ describe("RtfKomplettering", () => {
       mockResponse({ body: TOMT_UNDERLAG }),
       mockResponse({ body: { beskrivning: "Hjälptext" } }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
     expect(beskrivningAnrop(fetchMock)).toHaveLength(0);
 
-    const tooltip = wrapper.findComponent({ name: "FTooltip" });
-    tooltip.vm.$emit("toggle");
-    await flushPromises();
-    tooltip.vm.$emit("toggle");
-    await flushPromises();
+    await oppna(wrapper);
+    await stang(wrapper);
+    await oppna(wrapper);
 
     // Reopening a tooltip that already has its text must not fetch again.
+    expect(beskrivningAnrop(fetchMock)).toHaveLength(1);
+  });
+
+  it("does not refetch the help text when the tooltip is closed", async () => {
+    const fetchMock = stubFetch(
+      mockResponse({ body: TOMT_UNDERLAG }),
+      mockResponse({ ok: false, status: 500 }),
+    );
+    const wrapper = montera();
+    await flushPromises();
+
+    await oppna(wrapper);
+    // FTooltip emits toggle in both directions, so a close must not be read as
+    // another open — least of all after a failure, with nothing on screen.
+    await stang(wrapper);
+
     expect(beskrivningAnrop(fetchMock)).toHaveLength(1);
   });
 
@@ -315,17 +323,15 @@ describe("RtfKomplettering", () => {
       mockResponse({ ok: false, status: 500 }),
       mockResponse({ body: { beskrivning: "Hjälptext" } }),
     );
-    const wrapper = mountComponent();
+    const wrapper = montera();
     await flushPromises();
 
-    const tooltip = wrapper.findComponent({ name: "FTooltip" });
-    tooltip.vm.$emit("toggle");
-    await flushPromises();
+    await oppna(wrapper);
     expect(useKompletteringStore().descriptionError).toBe(true);
 
     // A transient failure must not pin the tooltip to the error for the session.
-    tooltip.vm.$emit("toggle");
-    await flushPromises();
+    await stang(wrapper);
+    await oppna(wrapper);
 
     expect(beskrivningAnrop(fetchMock)).toHaveLength(2);
     expect(useKompletteringStore().uppgiftsbeskrivning).toBe("Hjälptext");

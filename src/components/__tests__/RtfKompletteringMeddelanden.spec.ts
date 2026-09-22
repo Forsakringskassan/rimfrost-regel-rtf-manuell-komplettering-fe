@@ -1,10 +1,13 @@
-import { flushPromises, mount } from "@vue/test-utils";
-import { createPinia, setActivePinia } from "pinia";
-import { ValidationPlugin } from "@fkui/vue";
+import { flushPromises } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import RtfKomplettering from "../RtfKomplettering.vue";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
-import { TOMT_UNDERLAG, mockResponse, stubFetch } from "../../utils/__tests__/testHelpers";
+import {
+  TOMT_UNDERLAG,
+  knapp,
+  mockResponse,
+  montera,
+  stubFetch,
+} from "../../utils/__tests__/testHelpers";
 
 /**
  * Which status messages may share the screen. Kept in its own file: the flows in
@@ -15,19 +18,9 @@ import { TOMT_UNDERLAG, mockResponse, stubFetch } from "../../utils/__tests__/te
 describe("RtfKomplettering meddelanden", () => {
   async function mountaMedUnderlag() {
     stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-    const pinia = createPinia();
-    setActivePinia(pinia);
-    const wrapper = mount(RtfKomplettering, {
-      props: { handlaggningId: "h-123" },
-      global: { plugins: [pinia, ValidationPlugin] },
-      attachTo: document.body,
-    });
+    const wrapper = montera();
     await flushPromises();
     return { wrapper, store: useKompletteringStore() };
-  }
-
-  function klarmarkeraKnapp(wrapper: ReturnType<typeof mount>) {
-    return wrapper.findAll("button").find((button) => button.text().includes("Klarmarkera"));
   }
 
   it("never claims the data is saved while an error is on screen", async () => {
@@ -52,19 +45,10 @@ describe("RtfKomplettering meddelanden", () => {
       // Without the plugin FValidationForm swallows the submit and renders no
       // message of its own — the dead-button case. The report must survive both.
       const fetchMock = stubFetch(mockResponse({ body: TOMT_UNDERLAG }));
-      const pinia = createPinia();
-      setActivePinia(pinia);
-      const wrapper = mount(RtfKomplettering, {
-        props: { handlaggningId: "h-123" },
-        global: {
-          plugins: medValidationPlugin ? [pinia, ValidationPlugin] : [pinia],
-          directives: medValidationPlugin ? {} : { validation: {} },
-        },
-        attachTo: document.body,
-      });
+      const wrapper = montera("h-123", { medValidationPlugin });
       await flushPromises();
 
-      await klarmarkeraKnapp(wrapper)?.trigger("click");
+      await knapp(wrapper, "Klarmarkera")?.trigger("click");
       await flushPromises();
 
       const boxes = wrapper
@@ -82,7 +66,7 @@ describe("RtfKomplettering meddelanden", () => {
 
     await wrapper.find("input").setValue("19121212-1213");
     await wrapper.find("textarea").setValue("Sjukpenning");
-    await klarmarkeraKnapp(wrapper)?.trigger("click");
+    await knapp(wrapper, "Klarmarkera")?.trigger("click");
     await flushPromises();
 
     // Both fields are filled, so "ofullständiga" would send the handläggare

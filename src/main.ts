@@ -1,11 +1,8 @@
-import { createApp } from "vue";
-import { ValidationPlugin } from "@fkui/vue";
-import { createPinia } from "pinia";
 import "@fkui/design";
 import "./main.scss";
-import App from "./App.vue";
+import { init } from "./index";
 
-const app = createApp(App);
-app.use(ValidationPlugin);
-app.use(createPinia());
-app.mount("#app");
+// The standalone entry goes through the same init() the host uses, so the
+// exported entry point is exercised by every `npm run dev` rather than only
+// existing. The stylesheets stay here: they must not reach the federated build.
+init("#app");

@@ -11,6 +11,13 @@ export async function bffFetch(path: string, init?: RequestInit): Promise<Respon
   return fetch(`${env.bffUrl}${path}`, init);
 }
 
+/** The one place the BFF's non-2xx answers become an exception. */
+export function assertOk(response: Response): void {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+}
+
 /** For the endpoints that answer with a body. 204-returning calls use bffFetch directly. */
 export async function getJson<T>(path: string): Promise<T> {
   const response = await bffFetch(path, {
@@ -18,9 +25,7 @@ export async function getJson<T>(path: string): Promise<T> {
     headers: { Accept: "application/json" },
   });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  assertOk(response);
 
   const contentType = response.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {

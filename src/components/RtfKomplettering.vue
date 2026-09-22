@@ -36,9 +36,12 @@ const avsikt = ref("");
 const underlagLaddat = ref(false);
 const klar = ref(false);
 
-function handleTooltipOpen(): void {
+// FTooltip emits toggle on close as well as on open, so the payload is what
+// separates the two — without it a failed fetch is retried on every close, with
+// nothing on screen to receive it.
+function handleTooltipOpen(event: { isOpen: boolean }): void {
   // Nothing fetched yet, or the last attempt failed — a reopen is a free retry.
-  if (store.descriptionLoading || store.uppgiftsbeskrivning) {
+  if (!event.isOpen || store.descriptionLoading || store.uppgiftsbeskrivning) {
     return;
   }
   fetchUppgiftsbeskrivning(UPPGIFTSTYP);
