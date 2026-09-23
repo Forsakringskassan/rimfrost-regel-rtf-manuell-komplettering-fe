@@ -99,7 +99,13 @@ async function handleKlarmarkera(): Promise<void> {
 // Watching the prop also keeps the form honest if the host swaps tasks in place.
 watch(
   () => handlaggningId,
-  async (id) => {
+  async (id, _prev, onCleanup) => {
+    // Vue runs the cleanup before the next invocation's body, so a superseded
+    // load is aborted before its replacement touches the store — its own
+    // continuation then finds the signal aborted and writes nothing.
+    const controller = new AbortController();
+    onCleanup(() => controller.abort());
+
     store.$reset();
     klar.value = false;
     underlagLaddat.value = false;
@@ -111,11 +117,8 @@ watch(
       return;
     }
 
-    const data = await fetchKomplettering(id);
-    if (!data) {
-      // Leaving the form hidden is the point: an empty form over a failed load
-      // would let Spara PATCH two empty strings over whatever the yrkande
-      // already holds.
+    const data = await fetchKomplettering(id, controller.signal);
+    if (controller.signal.aborted || !data) {
       return;
     }
     personnummer.value = data.personnummer ?? "";

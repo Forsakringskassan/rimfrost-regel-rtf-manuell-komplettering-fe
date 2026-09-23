@@ -18,11 +18,18 @@ export function assertOk(response: Response): void {
   }
 }
 
-/** For the endpoints that answer with a body. 204-returning calls use bffFetch directly. */
-export async function getJson<T>(path: string): Promise<T> {
+/**
+ * For the endpoints that answer with a body. 204-returning calls use bffFetch
+ * directly.
+ *
+ * `signal` lets a caller drop a load it no longer wants — see
+ * fetchKomplettering, where a task swap supersedes the call in flight.
+ */
+export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await bffFetch(path, {
     method: "GET",
     headers: { Accept: "application/json" },
+    signal,
   });
 
   assertOk(response);

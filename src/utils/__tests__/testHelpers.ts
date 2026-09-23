@@ -71,3 +71,17 @@ export function montera(
 export function knapp(wrapper: ReturnType<typeof montera>, text: string) {
   return wrapper.findAll("button").find((button) => button.text().includes(text));
 }
+
+/**
+ * A promise the test resolves by hand, for the cases that need a second call
+ * issued while the first is still in flight — a task swap, above all.
+ */
+export function uppskjutetSvar<T>() {
+  let losUt!: (value: T) => void;
+  let avvisa!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolve, reject) => {
+    losUt = resolve;
+    avvisa = reject;
+  });
+  return { promise, losUt, avvisa };
+}

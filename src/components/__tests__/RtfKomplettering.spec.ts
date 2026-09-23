@@ -7,6 +7,7 @@ import {
   mockResponse,
   montera,
   stubFetch,
+  uppskjutetSvar,
 } from "../../utils/__tests__/testHelpers";
 
 /** The id montera() defaults to; asserted against in the request paths. */
@@ -144,6 +145,85 @@ describe("RtfKomplettering", () => {
 
     expect(fetchMock.mock.calls[1]?.[0]).toContain("/api/h-456/komplettering");
     expect(wrapper.find("textarea").element.value).toBe("Föräldrapenning");
+  });
+
+  /**
+   * The host can swap tasks faster than the BFF answers. Both watcher runs then
+   * share one Pinia singleton and one set of fields, so the load left behind has
+   * to land on nothing at all — the newer task's underlag is what the
+   * handläggare is looking at, and Spara would PATCH whatever is in the form.
+   */
+  describe("when the host swaps tasks before the first load answers", () => {
+    /** Mounts on h-123, swaps to h-456, and keeps h-123's response in hand. */
+    async function bytUppgiftUnderPagaendeLaddning() {
+      const forstaSvaret = uppskjutetSvar<ReturnType<typeof mockResponse>>();
+      const fetchMock = vi
+        .fn()
+        .mockReturnValueOnce(forstaSvaret.promise)
+        .mockResolvedValueOnce(
+          mockResponse({ body: { personnummer: "19900101-9999", avsikt: "Föräldrapenning" } }),
+        );
+      vi.stubGlobal("fetch", fetchMock);
+
+      const wrapper = montera();
+      await wrapper.setProps({ handlaggningId: "h-456" });
+      await flushPromises();
+
+      return { wrapper, forstaSvaret };
+    }
+
+    it("keeps the newer task's values when the older response arrives late", async () => {
+      const { wrapper, forstaSvaret } = await bytUppgiftUnderPagaendeLaddning();
+
+      forstaSvaret.losUt(
+        mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }),
+      );
+      await flushPromises();
+
+      expect(wrapper.find("textarea").element.value).toBe("Föräldrapenning");
+      expect(wrapper.find("input").element.value).toBe("900101-9999");
+    });
+
+    it("does not show an error from the load it swapped away from", async () => {
+      const { wrapper, forstaSvaret } = await bytUppgiftUnderPagaendeLaddning();
+
+      forstaSvaret.losUt(mockResponse({ ok: false, status: 500 }));
+      await flushPromises();
+
+      expect(useKompletteringStore().error).toBeNull();
+      expect(wrapper.text()).not.toContain("Kunde inte hämta");
+      expect(wrapper.find("textarea").element.value).toBe("Föräldrapenning");
+    });
+
+    // Its own mock, because this one needs both loads pending at the same time:
+    // the bug is the older call clearing the loader the newer one turned on.
+    it("keeps the loader up while the newer load is still in flight", async () => {
+      const forstaSvaret = uppskjutetSvar<ReturnType<typeof mockResponse>>();
+      const andraSvaret = uppskjutetSvar<ReturnType<typeof mockResponse>>();
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockReturnValueOnce(forstaSvaret.promise)
+          .mockReturnValueOnce(andraSvaret.promise),
+      );
+      const store = useKompletteringStore();
+
+      const wrapper = montera();
+      await wrapper.setProps({ handlaggningId: "h-456" });
+      await flushPromises();
+
+      forstaSvaret.losUt(mockResponse({ body: TOMT_UNDERLAG }));
+      await flushPromises();
+      expect(store.loading).toBe(true);
+
+      andraSvaret.losUt(
+        mockResponse({ body: { personnummer: "19900101-9999", avsikt: "Föräldrapenning" } }),
+      );
+      await flushPromises();
+      expect(store.loading).toBe(false);
+      expect(wrapper.find("textarea").element.value).toBe("Föräldrapenning");
+    });
   });
 
   it("Spara sends the current field values without completing the task", async () => {
