@@ -56,8 +56,10 @@ upp, så remoten fungerar även mot en värd som inte delar `@fkui/logic`.
 `ValidationDirective` exporteras inte publikt och kan inte registreras lokalt.
 
 Med registret på plats stoppar `FValidationForm` inskickning av ett ofullständigt formulär och
-visar både en sammanfattning ("Du har glömt fylla i något") och meddelanden per fält. FKUI:s
-personnummervalidering kontrollerar format och datum, men inte Luhn-kontrollsiffran.
+visar både en sammanfattning ("Du har glömt fylla i något") och meddelanden per fält. Fältet
+validerar personnumret med FKUI:s `personnummerLuhn`, och `valideraForKlarmarkering` gör om
+samma kontroll med `parsePersonnummerLuhn` innan något når BFF:n, så knappen och fältet
+underkänner samma nummer.
 
 ## API-specifikationer
 
@@ -186,7 +188,6 @@ Ingen egen hälsokontroll — statisk frontend, hälsa avgörs av webbservern so
 | `/utokadUppgiftsbeskrivning` exponeras ännu inte av `RegelKompletteringController`, så hjälptexten faller tillbaka på "Ingen beskrivning tillgänglig" mot dagens backend | Åtgärdas i kompletteringsramverket, se BFF:ns kända begränsningar |
 | `{uppgiftstyp}` i beskrivningsändpunkten används inte av bakomliggande tjänst | Klargör om typspecifika beskrivningar behövs |
 | Remoten exponerar bara `.vue`-komponenten, så värdapplikationen måste installera `ValidationPlugin` (för `v-validation`-direktivet) och tillhandahålla Pinia. Validerarregistret hanteras numera av remoten själv, men direktivet gör det inte | Verifiera mot portalen; exponera annars `init()` vid sidan av komponenten |
-| FKUI:s personnummervalidering kontrollerar inte Luhn-kontrollsiffran, så ett personnummer med fel sista siffra passerar formuläret | Bedöm om `parsePersonnummerLuhn` bör kopplas in som extra validering |
 | `ensureEnvLoaded()` härleder `runtime-config.js` ur `new URL(import.meta.url).origin`, vilket tappar en eventuell underkatalog i deployen och då hämtar värdens fil i stället. Ärvt från mallen | Härled sökvägen relativt modulen i stället för bara origin, i mallen och samtliga mikrofrontends |
 | Ett redan registrerat personnummer normaliseras till `ååååmmdd-nnnn` när formuläret sparas, även om det låg lagrat i annat format | Bedöm om regeltjänsten bör normalisera vid mottagandet i stället |
 | Avsikt är ett fritextfält utan validering mot kända avsiktsvärden | Klargör om avsikt ska väljas ur en lista |

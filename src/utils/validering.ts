@@ -1,4 +1,4 @@
-import { parsePersonnummer } from "@fkui/logic";
+import { parsePersonnummerLuhn } from "@fkui/logic";
 import {
   INGET_ATT_SPARA,
   OFULLSTANDIGA_UPPGIFTER,
@@ -38,17 +38,12 @@ export function valideraForSpara(data: RtfKompletteringData): string | null {
  * one: `done` closes the task on what is registered, so a value the rule
  * service cannot read at all would be registered on the yrkande with nothing
  * left to catch it.
- *
- * The check digit is deliberately not verified, so the numbers the test
- * environments hand out go through. config/validation.ts drops the same check
- * from the field, so the two still agree; a mistyped digit now reaches the rule
- * service, which is the only thing left that can catch it.
  */
 export function valideraForKlarmarkering(data: RtfKompletteringData): string | null {
   if (!harVarde(data.personnummer) || !harVarde(data.avsikt)) {
     return OFULLSTANDIGA_UPPGIFTER;
   }
-  if (!parsePersonnummer(data.personnummer)) {
+  if (!parsePersonnummerLuhn(data.personnummer)) {
     return OGILTIGT_PERSONNUMMER;
   }
   return null;

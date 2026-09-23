@@ -18,28 +18,12 @@ import { ValidationService, availableValidators } from "@fkui/logic";
  */
 let registered = false;
 
-/**
- * FPersonnummerTextField hardcodes `personnummerLuhn` onto its input in
- * `mounted()`, with no prop to turn it off, so the only seam for dropping the
- * check digit is the registry the field reads the validator out of. This
- * replacement keeps the name and passes everything; `personnummerFormat` still
- * runs, so a value that is not shaped like a personnummer is still caught.
- *
- * Registering it here overwrites whatever the host put under that name in the
- * shared @fkui/logic singleton, so every personnummer field in the portal stops
- * verifying its check digit once this remote has mounted, not only ours.
- */
-const UTAN_KONTROLLSIFFRA = {
-  name: "personnummerLuhn",
-  validation: () => true,
-};
-
 export function ensureValidatorsRegistered(): void {
-  if (!registered) {
-    registered = true;
-    for (const validator of availableValidators) {
-      ValidationService.registerValidator(validator);
-    }
+  if (registered) {
+    return;
   }
-  ValidationService.registerValidator(UTAN_KONTROLLSIFFRA);
+  registered = true;
+  for (const validator of availableValidators) {
+    ValidationService.registerValidator(validator);
+  }
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { valideraForKlarmarkering, valideraForSpara } from "../validering";
 
-const GILTIGT_PERSONNUMMER = "19900101-1234";
+const GILTIGT_PERSONNUMMER = "19900101-1239";
 
 describe("valideraForSpara", () => {
   it.each([
@@ -49,6 +49,7 @@ describe("valideraForKlarmarkering", () => {
   it.each([
     ["a truncated number", "19900101-123"],
     ["not a number at all", "inget personnummer"],
+    ["a check digit that does not add up", "19900101-1234"],
   ])("rejects a personnummer with %s", (_name, personnummer) => {
     expect(valideraForKlarmarkering({ personnummer, avsikt: "Sjukpenning" })).toContain(
       "Personnumret är inte giltigt",
@@ -56,7 +57,7 @@ describe("valideraForKlarmarkering", () => {
   });
 
   it("accepts the shorthand forms a handläggare may type", () => {
-    for (const personnummer of ["900101-1234", "900101+1234"]) {
+    for (const personnummer of ["900101-1239", "900101+1239"]) {
       expect(valideraForKlarmarkering({ personnummer, avsikt: "Sjukpenning" })).toBeNull();
     }
   });

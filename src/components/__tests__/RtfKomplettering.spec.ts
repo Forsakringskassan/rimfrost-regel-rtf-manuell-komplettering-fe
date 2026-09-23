@@ -32,7 +32,7 @@ async function submitFormular(wrapper: Wrapper, settled: () => void): Promise<vo
 }
 
 async function fyllIFormular(wrapper: Wrapper): Promise<void> {
-  await wrapper.find("input").setValue("19900101-1234");
+  await wrapper.find("input").setValue("19900101-1239");
   await wrapper.find("textarea").setValue("Sjukpenning");
 }
 
@@ -68,13 +68,13 @@ describe("RtfKomplettering", () => {
   });
 
   it("shows the loaded values in the form", async () => {
-    stubFetch(mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }));
+    stubFetch(mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }));
     const wrapper = montera();
     await flushPromises();
 
     // FKUI renders a personnummer in the 10-digit form it asks people to type,
     // while the bound value stays the 12-digit one the BFF exchanges.
-    expect(wrapper.find("input").element.value).toBe("900101-1234");
+    expect(wrapper.find("input").element.value).toBe("900101-1239");
     expect(wrapper.find("textarea").element.value).toBe("Sjukpenning");
   });
 
@@ -134,8 +134,8 @@ describe("RtfKomplettering", () => {
 
   it("reloads when the host swaps in another task", async () => {
     const fetchMock = stubFetch(
-      mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }),
-      mockResponse({ body: { personnummer: "19900101-9999", avsikt: "Föräldrapenning" } }),
+      mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }),
+      mockResponse({ body: { personnummer: "19900101-9992", avsikt: "Föräldrapenning" } }),
     );
     const wrapper = montera();
     await flushPromises();
@@ -161,7 +161,7 @@ describe("RtfKomplettering", () => {
         .fn()
         .mockReturnValueOnce(forstaSvaret.promise)
         .mockResolvedValueOnce(
-          mockResponse({ body: { personnummer: "19900101-9999", avsikt: "Föräldrapenning" } }),
+          mockResponse({ body: { personnummer: "19900101-9992", avsikt: "Föräldrapenning" } }),
         );
       vi.stubGlobal("fetch", fetchMock);
 
@@ -176,12 +176,12 @@ describe("RtfKomplettering", () => {
       const { wrapper, forstaSvaret } = await bytUppgiftUnderPagaendeLaddning();
 
       forstaSvaret.losUt(
-        mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }),
+        mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }),
       );
       await flushPromises();
 
       expect(wrapper.find("textarea").element.value).toBe("Föräldrapenning");
-      expect(wrapper.find("input").element.value).toBe("900101-9999");
+      expect(wrapper.find("input").element.value).toBe("900101-9992");
     });
 
     it("does not show an error from the load it swapped away from", async () => {
@@ -218,7 +218,7 @@ describe("RtfKomplettering", () => {
       expect(store.loading).toBe(true);
 
       andraSvaret.losUt(
-        mockResponse({ body: { personnummer: "19900101-9999", avsikt: "Föräldrapenning" } }),
+        mockResponse({ body: { personnummer: "19900101-9992", avsikt: "Föräldrapenning" } }),
       );
       await flushPromises();
       expect(store.loading).toBe(false);
@@ -241,7 +241,7 @@ describe("RtfKomplettering", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({
       method: "PATCH",
-      body: JSON.stringify({ personnummer: "19900101-1234", avsikt: "Sjukpenning" }),
+      body: JSON.stringify({ personnummer: "19900101-1239", avsikt: "Sjukpenning" }),
     });
     expect(wrapper.text()).toContain("Uppgifterna är sparade");
   });
@@ -360,7 +360,7 @@ describe("RtfKomplettering", () => {
       "POST",
     ]);
     expect(fetchMock.mock.calls[2]?.[1]?.body).toBe(
-      JSON.stringify({ personnummer: "19900101-1234", avsikt: "Föräldrapenning" }),
+      JSON.stringify({ personnummer: "19900101-1239", avsikt: "Föräldrapenning" }),
     );
   });
 

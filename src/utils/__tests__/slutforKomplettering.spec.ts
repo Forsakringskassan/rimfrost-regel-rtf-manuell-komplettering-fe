@@ -5,7 +5,7 @@ import { useKompletteringStore } from "../../stores/KompletteringStore";
 import { KlarmarkeraResultat } from "../../types";
 import { mockResponse, stubFetch } from "./testHelpers";
 
-const DATA = { personnummer: "19900101-1234", avsikt: "Sjukpenning" };
+const DATA = { personnummer: "19900101-1239", avsikt: "Sjukpenning" };
 
 function methodsOf(fetchMock: ReturnType<typeof stubFetch>) {
   return fetchMock.mock.calls.map((call) => call[1]?.method);
@@ -18,7 +18,7 @@ describe("slutforKomplettering", () => {
   it.each([
     ["both fields empty", { personnummer: "", avsikt: "" }],
     ["personnummer empty", { personnummer: "", avsikt: "Sjukpenning" }],
-    ["avsikt empty", { personnummer: "19900101-1234", avsikt: "" }],
+    ["avsikt empty", { personnummer: "19900101-1239", avsikt: "" }],
     ["both null", { personnummer: null, avsikt: null }],
     ["whitespace only", { personnummer: "  ", avsikt: "   " }],
   ])("reports incomplete data without calling the BFF: %s", async (_name, data) => {

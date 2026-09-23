@@ -14,9 +14,9 @@ describe("fetchKomplettering", () => {
   });
 
   it("returns the loaded data", async () => {
-    stubFetch(mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }));
+    stubFetch(mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }));
     await expect(fetchKomplettering("h-123")).resolves.toEqual({
-      personnummer: "19900101-1234",
+      personnummer: "19900101-1239",
       avsikt: "Sjukpenning",
     });
   });
@@ -70,7 +70,7 @@ describe("fetchKomplettering", () => {
 
     it("returns null instead of the data it fetched", async () => {
       const { svar, laddning } = paboradOchAvbruten();
-      svar.losUt(mockResponse({ body: { personnummer: "19900101-1234", avsikt: "Sjukpenning" } }));
+      svar.losUt(mockResponse({ body: { personnummer: "19900101-1239", avsikt: "Sjukpenning" } }));
       await expect(laddning).resolves.toBeNull();
     });
 
