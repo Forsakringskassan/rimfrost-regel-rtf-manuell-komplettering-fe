@@ -11,7 +11,6 @@
   "scripts": {
     "dev": "vite",
     "dev:8900": "vite --port 8900",
-    "mock-bff": "node dev/mock-bff.mjs",
     "build": "vue-tsc -b && vite build",
     "preview": "vue-tsc -b && vite build && vite preview",
     "serve": "vite preview",
