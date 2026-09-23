@@ -1,0 +1,14 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    uses: Forsakringskassan/.github/.github/workflows/bundle-app-npm-ci-runtime-env.yaml@main
+    secrets:
+      PACKAGES_RW_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
+      PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}

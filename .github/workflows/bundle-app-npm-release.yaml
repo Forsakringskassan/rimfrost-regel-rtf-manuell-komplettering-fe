@@ -1,0 +1,10 @@
+name: Bundle NPM App Release
+
+on: [workflow_dispatch]
+
+jobs:
+  bundle-app-npm-release:
+    uses: Forsakringskassan/.github/.github/workflows/bundle-app-npm-release.yaml@main
+    secrets:
+      PACKAGES_RW_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
+      PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
