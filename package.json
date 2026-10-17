@@ -28,7 +28,7 @@
     "vue": "^3.5.24"
   },
   "devDependencies": {
-    "@module-federation/vite": "^1.15.2",
+    "@module-federation/vite": "^1.22.0",
     "@types/node": "^24.10.0",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vitest/coverage-v8": "^4.1.5",
