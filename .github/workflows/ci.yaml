@@ -8,7 +8,9 @@ on:
 
 jobs:
   ci:
-    uses: Forsakringskassan/.github/.github/workflows/bundle-app-npm-ci-runtime-env.yaml@main
-    secrets:
-      PACKAGES_RW_ACTOR: ${{ secrets.PACKAGES_RW_ACTOR }}
-      PACKAGES_RW_TOKEN: ${{ secrets.PACKAGES_RW_TOKEN }}
+    permissions:
+      contents: read
+      packages: write
+      pages: write
+      id-token: write
+    uses: Forsakringskassan/.github/.github/workflows/bundle-app-npm-ci-runtime-env.yaml@7dc0edc0051d2e7b37cfbe45b51841141ee3a835 # main
