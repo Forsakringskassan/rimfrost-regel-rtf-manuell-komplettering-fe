@@ -69,7 +69,7 @@ export function ensureEnvLoaded(): Promise<void> {
       try {
         const ownOrigin = new URL(import.meta.url).origin;
         const script = document.createElement("script");
-        script.src = `${ownOrigin}/runtime-config.js`;
+        script.src = `${ownOrigin}/config/runtime-config.js`;
         script.onload = () => resolve();
         script.onerror = () => resolve();
         document.head.appendChild(script);

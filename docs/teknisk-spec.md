@@ -165,7 +165,7 @@ Globalen är namnrymdad per app. Som module federation-remote delar mikrofronten
 med värdapplikationen, så en gemensam `window._env_` skulle låta apparnas konfiguration skriva
 över varandras.
 
-`ensureEnvLoaded()` laddar `runtime-config.js` från appens egen origin, härledd ur
+`ensureEnvLoaded()` laddar `config/runtime-config.js` från appens egen origin, härledd ur
 `import.meta.url`. Som remote laddas aldrig appens egen `index.html`, så `<script>`-taggen där
 körs inte och globalen skulle annars aldrig sättas.
 
