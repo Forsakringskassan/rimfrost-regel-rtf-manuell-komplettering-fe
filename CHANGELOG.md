@@ -2,6 +2,23 @@
 
 Changelog of rimfrost-regel-rtf-manuell-komplettering-fe.
 
+## 0.0.2 (2026-11-01)
+
+### Dependency updates
+
+- update dependency @module-federation/vite to ^1.23.5 (#15) ([216b3](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/216b362ab2e4bbc) renovate[bot])  
+- update dependency sass-embedded to ^1.106.1 (#12) ([8f91f](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/8f91f080a2f665e) renovate[bot])  
+- update dependency sass-embedded to ^1.104.1 (#11) ([17a43](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/17a43632da187ca) renovate[bot])  
+- update dependency @vue/tsconfig to ^0.9.0 (#10) ([1dd60](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/1dd6067a88e0677) renovate[bot])  
+- update dependency @types/node to ^24.19.2 (#9) ([04d03](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/04d03f5644ecaf3) renovate[bot])  
+- update dependency @module-federation/vite to ^1.22.0 (#8) ([eecd9](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/eecd9a7117d2b2e) renovate[bot])  
+- update dependency happy-dom to ^20.14.5 (#7) ([5f526](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/5f526fd72eafd50) renovate[bot])  
+- update dependency @vitejs/plugin-vue to ^6.0.9 (#6) ([f7779](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/f77794771b09449) renovate[bot])  
+- update dependency vue-tsc to ^3.3.11 (#5) ([4d1a0](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/4d1a0d2209bd2b4) renovate[bot])  
+- update dependency vite to ^7.3.6 (#4) ([72104](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/721048828252ed3) renovate[bot])  
+### Other changes
+
+
 ## 0.0.1 (2026-09-23)
 
 ### Bug Fixes
