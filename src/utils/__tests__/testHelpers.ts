@@ -2,6 +2,9 @@ import { mount } from "@vue/test-utils";
 import { ValidationPlugin } from "@fkui/vue";
 import { vi } from "vitest";
 import RtfKomplettering from "../../components/RtfKomplettering.vue";
+import { TOKEN } from "./testToken";
+
+export { TOKEN };
 
 interface MockResponseOptions {
   ok?: boolean;
@@ -52,13 +55,19 @@ export const TOMT_UNDERLAG = { personnummer: null, avsikt: null };
  * `medValidationPlugin: false` reproduces the host that never installed
  * ValidationPlugin — the plugin has to be genuinely absent, so the directive is
  * stubbed instead to keep the template compiling.
+ *
+ * `authorization` is what the portal passes; null is a portal with no one
+ * logged in.
  */
 export function montera(
   handlaggningId: string | null = "h-123",
-  { medValidationPlugin = true }: { medValidationPlugin?: boolean } = {},
+  {
+    medValidationPlugin = true,
+    authorization = TOKEN,
+  }: { medValidationPlugin?: boolean; authorization?: string | null } = {},
 ) {
   return mount(RtfKomplettering, {
-    props: { handlaggningId },
+    props: { handlaggningId, authorization },
     global: {
       plugins: medValidationPlugin ? [ValidationPlugin] : [],
       directives: medValidationPlugin ? {} : { validation: {} },

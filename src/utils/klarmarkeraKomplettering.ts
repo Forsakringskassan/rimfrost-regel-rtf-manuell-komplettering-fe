@@ -1,4 +1,4 @@
-import { bffFetch, kompletteringPath } from "./bffClient";
+import { bffFetch, felmeddelande, kompletteringPath } from "./bffClient";
 import { useKompletteringStore } from "../stores/KompletteringStore";
 import { KlarmarkeraResultat } from "../types";
 import { OFULLSTANDIGA_UPPGIFTER } from "../meddelanden";
@@ -46,7 +46,7 @@ export async function klarmarkeraKomplettering(
     throw new Error(`HTTP error! status: ${response.status}`);
   } catch (error) {
     console.error("Error completing komplettering:", error);
-    store.error = "Kunde inte klarmarkera uppgiften. Försök igen senare.";
+    store.error = felmeddelande(error, "Kunde inte klarmarkera uppgiften. Försök igen senare.");
     return KlarmarkeraResultat.FEL;
   } finally {
     store.saving = false;

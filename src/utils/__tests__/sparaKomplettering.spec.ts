@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sparaKomplettering } from "../sparaKomplettering";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
+import { SAKNAR_BEHORIGHET } from "../../meddelanden";
 import { mockResponse, stubFetch } from "./testHelpers";
 
 describe("sparaKomplettering", () => {
@@ -46,5 +47,13 @@ describe("sparaKomplettering", () => {
     stubFetch(mockResponse({ ok: false }));
     await sparaKomplettering("h-123", { personnummer: "x", avsikt: "y" });
     expect(useKompletteringStore().saving).toBe(false);
+  });
+
+  it("asks the handläggare to log in again when the BFF answers 401", async () => {
+    stubFetch(mockResponse({ ok: false, status: 401 }));
+    await expect(
+      sparaKomplettering("h-123", { personnummer: "x", avsikt: "y" }),
+    ).resolves.toBe(false);
+    expect(useKompletteringStore().error).toBe(SAKNAR_BEHORIGHET);
   });
 });

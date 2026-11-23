@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import {
   FButton,
   FLoader,
@@ -17,13 +17,19 @@ import { fetchUppgiftsbeskrivning } from "../utils/fetchUppgiftsbeskrivning";
 import { slutforKomplettering } from "../utils/slutforKomplettering";
 import { sparaKomplettering } from "../utils/sparaKomplettering";
 import { valideraForKlarmarkering, valideraForSpara } from "../utils/validering";
+import { SAKNAR_BEHORIGHET } from "../meddelanden";
 import { KlarmarkeraResultat } from "../types";
 import type { RtfKompletteringData } from "../types";
 
 const UPPGIFTSTYP = "RTF_MANUELL_KOMPLETTERING";
 
-const { handlaggningId } = defineProps<{
+// `authorization` is the logged-in handläggare's token from the portal
+// (PORT-FR-03.6): the full Authorization header value, sent unchanged on every
+// BFF call. Declared directly on this exposed component — the portal only
+// passes it to remotes that declare it.
+const { handlaggningId, authorization } = defineProps<{
   handlaggningId?: string | null;
+  authorization?: string | null;
 }>();
 
 ensureValidatorsRegistered();
@@ -97,9 +103,12 @@ async function handleKlarmarkera(): Promise<void> {
 // previous task would otherwise carry over — a stale `sparad` would make
 // Klarmarkera skip the save and complete the next task on data never sent.
 // Watching the prop also keeps the form honest if the host swaps tasks in place.
+// The token is watched too: the portal remounts this component when the
+// handläggare changes (PORT-FR-03.7), and should it not, data fetched with the
+// previous handläggare's token must not stay on screen.
 watch(
-  () => handlaggningId,
-  async (id, _prev, onCleanup) => {
+  () => [handlaggningId, authorization] as const,
+  async ([id, token], _prev, onCleanup) => {
     // Vue runs the cleanup before the next invocation's body, so a superseded
     // load is aborted before its replacement touches the store — its own
     // continuation then finds the signal aborted and writes nothing.
@@ -111,9 +120,16 @@ watch(
     underlagLaddat.value = false;
     personnummer.value = "";
     avsikt.value = "";
+    // After $reset, which clears it along with the rest of the store.
+    store.authorization = token || null;
 
     if (!id) {
       store.error = "Ingen handläggning angiven. Uppgiften kan inte visas.";
+      return;
+    }
+
+    if (!store.authorization) {
+      store.error = SAKNAR_BEHORIGHET;
       return;
     }
 
@@ -127,6 +143,11 @@ watch(
   },
   { immediate: true },
 );
+
+// Pinia is the portal's, so don't leave the token behind once this remote is gone.
+onUnmounted(() => {
+  store.authorization = null;
+});
 </script>
 
 <template>
