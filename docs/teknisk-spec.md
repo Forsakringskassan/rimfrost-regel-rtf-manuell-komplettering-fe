@@ -85,11 +85,14 @@ Alla anrop går genom `bffFetch` i `src/utils/bffClient.ts`, som lägger på `Au
 Komponenten lägger token i storen efter `$reset()` och innan underlaget hämtas. Token bevakas
 tillsammans med `handlaggningId`: byts handläggaren eller loggar ut läses underlaget om med den
 nya token, eller rensas. Portalen monterar dessutom om komponenten i det läget (PORT-FR-03.7).
-Storen är portalens Pinia-singleton, så token tas bort ur den när komponenten avmonteras.
+Storen är portalens Pinia-singleton, så token tas bort ur den i `onBeforeUnmount`. Inte i
+`onUnmounted`: när portalen byter `key` sätts den nya instansen upp innan den gamlas
+`onUnmounted` körs, och då skulle den nya instansens token raderas.
 
 Saknas token görs inget anrop. Saknas token, eller svarar BFF:en 401, visas "Kunde inte
 identifiera dig som handläggare …" (`SAKNAR_BEHORIGHET` i `src/meddelanden.ts`, samma text som
-`rimfrost-regel-rtf-manuell-fe`) i stället för det generella felet (RTFKF-NFR-01.5).
+`rimfrost-regel-rtf-manuell-fe`) i stället för det generella felet (RTFKF-NFR-01.5). Det gäller
+även hjälptexten: avvisas token där visas meddelandet i komponentens felruta.
 
 Fristående (`npm run dev`/`preview`) finns ingen portal. Då används `VITE_DEV_AUTHORIZATION`
 eller `RUNTIME_DEV_AUTHORIZATION` som token.

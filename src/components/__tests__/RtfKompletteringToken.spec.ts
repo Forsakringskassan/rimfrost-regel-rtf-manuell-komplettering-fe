@@ -1,4 +1,7 @@
-import { flushPromises } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
+import { ValidationPlugin } from "@fkui/vue";
+import { defineComponent, h } from "vue";
+import RtfKomplettering from "../RtfKomplettering.vue";
 import { describe, expect, it } from "vitest";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
 import { SAKNAR_BEHORIGHET } from "../../meddelanden";
@@ -100,5 +103,43 @@ describe("RtfKomplettering and the portal's token (PORT-FR-03.6)", () => {
     wrapper.unmount();
 
     expect(useKompletteringStore().authorization).toBeNull();
+  });
+
+  it("keeps the new token when the portal remounts by changing the key", async () => {
+    // Like OppnadUppgift.vue in the portal: a new key means a new instance,
+    // and Vue sets that up before it runs the old instance's unmounted hooks.
+    const Vard = defineComponent({
+      props: { nyckel: { type: String, required: true }, token: { type: String, required: true } },
+      setup(props) {
+        return () =>
+          h(RtfKomplettering, {
+            key: props.nyckel,
+            handlaggningId: "h-123",
+            authorization: props.token,
+          });
+      },
+    });
+    stubFetch(mockResponse({ body: TOMT_UNDERLAG }), mockResponse({ body: TOMT_UNDERLAG }));
+    const wrapper = mount(Vard, {
+      props: { nyckel: "1", token: TOKEN },
+      global: { plugins: [ValidationPlugin] },
+    });
+    await flushPromises();
+
+    await wrapper.setProps({ nyckel: "2", token: "Bearer 1:ny" });
+    await flushPromises();
+
+    expect(useKompletteringStore().authorization).toBe("Bearer 1:ny");
+  });
+
+  it("asks for a new login when the help text is refused with 401", async () => {
+    stubFetch(mockResponse({ body: TOMT_UNDERLAG }), mockResponse({ ok: false, status: 401 }));
+    const wrapper = montera();
+    await flushPromises();
+
+    wrapper.findComponent({ name: "FTooltip" }).vm.$emit("toggle", { isOpen: true });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain(SAKNAR_BEHORIGHET);
   });
 });

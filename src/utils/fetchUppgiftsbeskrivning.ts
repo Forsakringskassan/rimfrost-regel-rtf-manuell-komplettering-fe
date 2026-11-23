@@ -1,4 +1,5 @@
-import { getJson } from "./bffClient";
+import { SaknarBehorighetError, getJson } from "./bffClient";
+import { SAKNAR_BEHORIGHET } from "../meddelanden";
 import { useKompletteringStore } from "../stores/KompletteringStore";
 import type { UppgiftsbeskrivningResponse } from "../types";
 
@@ -26,6 +27,11 @@ export async function fetchUppgiftsbeskrivning(uppgiftstyp: string): Promise<voi
     console.error("Error fetching description:", error);
     store.uppgiftsbeskrivning = "";
     store.descriptionError = true;
+    // A token problem is not about the help text: say it where it can be seen
+    // and acted on (RTFKF-NFR-01.5).
+    if (error instanceof SaknarBehorighetError) {
+      store.error = SAKNAR_BEHORIGHET;
+    }
   } finally {
     store.descriptionLoading = false;
   }

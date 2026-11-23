@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { onBeforeUnmount, ref, watch } from "vue";
 import {
   FButton,
   FLoader,
@@ -145,7 +145,10 @@ watch(
 );
 
 // Pinia is the portal's, so don't leave the token behind once this remote is gone.
-onUnmounted(() => {
+// onBeforeUnmount, not onUnmounted: when the portal remounts by changing the
+// key, Vue sets up the new instance before it runs the old one's unmounted
+// hooks, so clearing there would wipe the token the new instance just set.
+onBeforeUnmount(() => {
   store.authorization = null;
 });
 </script>
