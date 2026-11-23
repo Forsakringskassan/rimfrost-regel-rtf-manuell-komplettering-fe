@@ -5,7 +5,7 @@
   ],
   "packageRules": [
     {
-      "description": "Låst till samma version som rimfrost-portal-handlaggare (1.15.2). En nyare module federation-runtime i en remote bryter delningen av @fkui/vue och @fkui/logic i portalen (FKPOC-1499). Uppgraderas bara tillsammans med portalen och alla remotes.",
+      "description": "Låst till samma version som rimfrost-portal-handlaggare. En nyare module federation-runtime i en remote bryter delningen av @fkui/vue och @fkui/logic i portalen (FKPOC-1499). Uppgraderas bara tillsammans med portalen och alla remotes.",
       "matchPackageNames": [
         "@module-federation/vite"
       ],
