@@ -10,7 +10,7 @@ ingen websocket/polling.
 
 ```text
 src/
-├── App.vue                          # Rotkomponent, tar emot handlaggningId som prop
+├── App.vue                          # Rotkomponent, tar emot handlaggningId och authorization som props
 ├── index.ts                         # init() för värdapplikationen
 ├── main.ts                          # Fristående utvecklingsläge
 ├── components/
@@ -19,7 +19,7 @@ src/
 ├── stores/KompletteringStore.ts     # Pinia: fel-, ladd- och sparstatus
 ├── types.ts                         # Domänmodell speglad från regeltjänstens OpenAPI
 └── utils/
-    ├── bffClient.ts                 # Bas-url, körtidskonfiguration och JSON-kontrakt
+    ├── bffClient.ts                 # Bas-url, körtidskonfiguration, Authorization och JSON-kontrakt
     ├── slutforKomplettering.ts      # Sekvensen spara → slutför
     └── …                            # Ett anrop per fil i övrigt
 ```
@@ -74,6 +74,25 @@ speglar dem.
 | PATCH | `/api/{handlaggningId}/komplettering` | Registrera personnummer och avsikt |
 | POST | `/api/{handlaggningId}/komplettering/done` | Slutför uppgiften, avslutar OUL-uppgiften |
 | GET | `/api/uppgiftsbeskrivning/{uppgiftstyp}` | Hämta hjälptext |
+
+### Authorization
+
+Alla anrop går genom `bffFetch` i `src/utils/bffClient.ts`, som lägger på `Authorization`
+(RTFKF-NFR-01.4). Värdet kommer från propen `authorization` på den exponerade komponenten
+`RtfKomplettering.vue`, som portalen sätter till hela headervärdet (i dag
+`Bearer <typId>:<varde>`, PORT-FR-03.6). Mikrofrontenden tolkar inte innehållet.
+
+Komponenten lägger token i storen efter `$reset()` och innan underlaget hämtas. Token bevakas
+tillsammans med `handlaggningId`: byts handläggaren eller loggar ut läses underlaget om med den
+nya token, eller rensas. Portalen monterar dessutom om komponenten i det läget (PORT-FR-03.7).
+Storen är portalens Pinia-singleton, så token tas bort ur den när komponenten avmonteras.
+
+Saknas token görs inget anrop. Saknas token, eller svarar BFF:en 401, visas "Kunde inte
+identifiera dig som handläggare …" (`SAKNAR_BEHORIGHET` i `src/meddelanden.ts`, samma text som
+`rimfrost-regel-rtf-manuell-fe`) i stället för det generella felet (RTFKF-NFR-01.5).
+
+Fristående (`npm run dev`/`preview`) finns ingen portal. Då används `VITE_DEV_AUTHORIZATION`
+eller `RUNTIME_DEV_AUTHORIZATION` som token.
 
 ### Spara och slutför som två anrop
 
@@ -160,6 +179,7 @@ Ingen. Mikrofrontenden har ingen meddelandeintegration.
 | `VITE_BFF_URL` | BFF-url vid lokal utveckling. Tom sträng ger relativa `/api`-anrop via Vites dev-proxy | tom |
 | `RUNTIME_BFF_URL` (`window.__RTF_MANUELL_KOMPLETTERING_FE_ENV__`) | BFF-url vid körning i container; går före byggtidsvärdet | — |
 | `VITE_DEV_HANDLAGGNING_ID` | Fallback-id vid fristående utvecklingsläge | — |
+| `VITE_DEV_AUTHORIZATION` / `RUNTIME_DEV_AUTHORIZATION` | Token (hela headervärdet) vid fristående utvecklingsläge. Får aldrig sättas i en driftsatt miljö, eftersom `runtime-config.js` är publik | — |
 
 Globalen är namnrymdad per app. Som module federation-remote delar mikrofrontenden `window`
 med värdapplikationen, så en gemensam `window._env_` skulle låta apparnas konfiguration skriva
@@ -191,7 +211,6 @@ Ingen egen hälsokontroll — statisk frontend, hälsa avgörs av webbservern so
 | `ensureEnvLoaded()` härleder `runtime-config.js` ur `new URL(import.meta.url).origin`, vilket tappar en eventuell underkatalog i deployen och då hämtar värdens fil i stället. Ärvt från mallen | Härled sökvägen relativt modulen i stället för bara origin, i mallen och samtliga mikrofrontends |
 | Ett redan registrerat personnummer normaliseras till `ååååmmdd-nnnn` när formuläret sparas, även om det låg lagrat i annat format | Bedöm om regeltjänsten bör normalisera vid mottagandet i stället |
 | Avsikt är ett fritextfält utan validering mot kända avsiktsvärden | Klargör om avsikt ska väljas ur en lista |
-| `Authorization` skickas inte vidare från mikrofrontenden, trots att BFF:n vidarebefordrar headern | Koppla in portalens token när dess mekanism är fastställd |
 | FKUI:s valideringsregister är modulglobalt och ackumulerar fält mellan monteringar, så fältnivåvalidering blir opålitlig efter många monteringar i samma testfil. Testerna täcker därför att ett tomt formulär stoppas, men inte varje enskild fältregel. `@fkui/logic` 6.58 exponerar ingen återställningsmetod för registret | Bedöm om e2e-test behövs för att täcka fältreglerna |
 | Frontenden förutsätter att blankt värde betyder "ännu inte registrerat". BFF:ns teknisk-spec föreslår tvärtom `minLength: 1` i `rimfrost-regel-rtf-manuell-komplettering-openapi`, vilket skulle göra att `PATCH` svarar 400 på ett halvifyllt formulär och tyst bryta RTFKF-FR-02.2 | Bestäm saken i specen — gör blankt till den uttryckliga representationen av "inte registrerat", eller inför ett separat utkastläge i frontenden |
 | Mellan `PATCH` och `POST .../done` finns ett fönster där uppgifterna är sparade men uppgiften inte slutförd. Handläggaren får ett felmeddelande och uppgiften förblir öppen, men tillståndet är delvis tillämpat | Bedöm om ramverket bör erbjuda ett kombinerat anrop; hör hemma i `rimfrost-framework-regel-komplettering` |

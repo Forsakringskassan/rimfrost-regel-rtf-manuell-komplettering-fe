@@ -16,7 +16,7 @@ utan att lämna den.
 | Aktör | Roll |
 |---|---|
 | Handläggare | Enda användarrollen; registrerar de kompletterande uppgifterna |
-| Handläggarportalen (värdapplikation) | Laddar in denna mikrofrontend och förmedlar uppgiftens identifierare |
+| Handläggarportalen (värdapplikation) | Laddar in denna mikrofrontend och förmedlar uppgiftens identifierare och handläggarens token |
 | RTF Manuell Komplettering BFF | Enda bakomliggande tjänst denna mikrofrontend anropar |
 
 ---
@@ -72,6 +72,11 @@ utan att lämna den.
 - **RTFKF-NFR-01.2** Mikrofrontenden ska kunna köras fristående för utveckling, utan
   värdapplikation.
 - **RTFKF-NFR-01.3** Mikrofrontenden ska kunna peka mot olika BFF-instanser utan att byggas om.
+- **RTFKF-NFR-01.4** Mikrofrontenden ska ta emot den inloggade handläggarens token från
+  värdapplikationen och skicka den oförändrad i `Authorization`-headern på alla anrop till
+  RTF Manuell Komplettering BFF.
+- **RTFKF-NFR-01.5** Saknas token ska inget anrop göras till BFF:en. Saknas token, eller avvisar
+  BFF:en den (401), ska ett begripligt felmeddelande visas i stället för ett generellt fel.
 
 ### RTFKF-NFR-02 — Tillgänglighet
 

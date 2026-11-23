@@ -18,7 +18,7 @@ You need Node 22+ and the BFF on port 9004.
 
 ```bash
 npm install
-cp .env.example .env     # then set VITE_DEV_HANDLAGGNING_ID
+cp .env.example .env     # then set VITE_DEV_HANDLAGGNING_ID and VITE_DEV_AUTHORIZATION
 npm run dev              # http://localhost:3032
 ```
 
@@ -32,7 +32,9 @@ CORS_ORIGINS=http://localhost:3032 ./mvnw quarkus:dev
 ```
 
 Standalone there is no host to supply a task, so set `VITE_DEV_HANDLAGGNING_ID` to a
-handlaggningId that has an open komplettering task in the OUL.
+handlaggningId that has an open komplettering task in the OUL, and `VITE_DEV_AUTHORIZATION` to
+the `Authorization` value the portal would pass (e.g. `Bearer <typId>:<varde>`). Without a token
+the app makes no BFF call and shows a login message.
 
 | Command | What it does |
 |---|---|
@@ -68,8 +70,10 @@ That entry is the only change needed to register or update the remote — no por
 any environment. The scope must stay unique: `rimfrost-regel-rtf-manuell-fe` publishes itself
 as `remoteApp`, and two remotes sharing a scope overwrite each other in the portal's container.
 
-The portal passes `handlaggningId` as a prop, and gets a `task-done` event on `window` when the
-task is completed so it can drop it from the list.
+The portal passes `handlaggningId` and `authorization` (the logged-in handläggare's token, the
+full `Authorization` header value) as props, and gets a `task-done` event on `window` when the
+task is completed so it can drop it from the list. Every BFF call sends the token unchanged in
+the `Authorization` header (`src/utils/bffClient.ts`).
 
 ## Configuration
 
@@ -80,6 +84,7 @@ Split between local development and container deployments.
 ```env
 VITE_BFF_URL=
 VITE_DEV_HANDLAGGNING_ID=<a handlaggningId from the OUL>
+VITE_DEV_AUTHORIZATION=Bearer <typId>:<varde>
 ```
 
 **Docker** — mount a `runtime-config.js`:
@@ -125,6 +130,7 @@ volumes:
 |---|---|---|---|
 | BFF URL | `VITE_BFF_URL` | `RUNTIME_BFF_URL` | BFF base URL; empty means use the dev proxy |
 | Dev task id | `VITE_DEV_HANDLAGGNING_ID` | — | Standalone development only |
+| Dev token | `VITE_DEV_AUTHORIZATION` | `RUNTIME_DEV_AUTHORIZATION` | Standalone development only; the portal passes the real token as a prop. Never set it in a deployed environment: `runtime-config.js` is public |
 
 The global is namespaced per app because a Module Federation remote shares one `window` with
 its host — a shared `window._env_` would let the two clobber each other's config.
