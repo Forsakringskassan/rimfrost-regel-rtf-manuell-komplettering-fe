@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { slutforKomplettering } from "../slutforKomplettering";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
 import { KlarmarkeraResultat } from "../../types";
-import { mockResponse, stubFetch } from "./testHelpers";
+import { TOKEN, mockResponse, stubFetch } from "./testHelpers";
 
 const DATA = { personnummer: "19900101-1239", avsikt: "Sjukpenning" };
 
@@ -51,6 +51,8 @@ describe("slutforKomplettering", () => {
     })();
 
     setActivePinia(createPinia());
+    // A fresh store, so put back the token test-setup.ts seeds.
+    useKompletteringStore().authorization = TOKEN;
     const franRegeltjansten = await (async () => {
       stubFetch(mockResponse({ status: 204 }), mockResponse({ ok: false, status: 422 }));
       await slutforKomplettering("h-123", DATA);

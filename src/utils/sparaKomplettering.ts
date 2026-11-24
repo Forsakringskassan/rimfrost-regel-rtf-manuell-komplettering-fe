@@ -1,4 +1,4 @@
-import { assertOk, bffFetch, kompletteringPath } from "./bffClient";
+import { assertOk, bffFetch, felmeddelande, kompletteringPath } from "./bffClient";
 import { useKompletteringStore } from "../stores/KompletteringStore";
 import type { RtfKompletteringData } from "../types";
 
@@ -38,7 +38,7 @@ export async function sparaKomplettering(
     return true;
   } catch (error) {
     console.error("Error saving komplettering:", error);
-    store.error = "Kunde inte spara uppgifterna. Försök igen senare.";
+    store.error = felmeddelande(error, "Kunde inte spara uppgifterna. Försök igen senare.");
     return false;
   } finally {
     store.saving = false;

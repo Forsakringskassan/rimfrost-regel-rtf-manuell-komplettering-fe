@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { klarmarkeraKomplettering } from "../klarmarkeraKomplettering";
 import { useKompletteringStore } from "../../stores/KompletteringStore";
 import { KlarmarkeraResultat } from "../../types";
+import { SAKNAR_BEHORIGHET } from "../../meddelanden";
 import { mockResponse, stubFetch } from "./testHelpers";
 
 function listenForTaskDone() {
@@ -66,5 +67,11 @@ describe("klarmarkeraKomplettering", () => {
     stubFetch(mockResponse({ ok: false, status: 409 }));
     await klarmarkeraKomplettering("h-123");
     expect(useKompletteringStore().saving).toBe(false);
+  });
+
+  it("asks the handläggare to log in again when the BFF answers 401", async () => {
+    stubFetch(mockResponse({ ok: false, status: 401 }));
+    await expect(klarmarkeraKomplettering("h-123")).resolves.toBe(KlarmarkeraResultat.FEL);
+    expect(useKompletteringStore().error).toBe(SAKNAR_BEHORIGHET);
   });
 });

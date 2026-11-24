@@ -4,7 +4,10 @@ import { ValidationPlugin } from "@fkui/vue";
 import { createPinia } from "pinia";
 import AppComponent from "./App.vue";
 
-export function init(mount: string | Element, params?: { handlaggningId?: string | null }): App {
+export function init(
+  mount: string | Element,
+  params?: { handlaggningId?: string | null; authorization?: string | null },
+): App {
   const container = typeof mount === "string" ? document.querySelector(mount) : mount;
 
   if (!container) {
@@ -18,7 +21,10 @@ export function init(mount: string | Element, params?: { handlaggningId?: string
   container.addEventListener("component-validity", (event: Event) => event.stopPropagation());
   container.addEventListener("component-unmount", (event: Event) => event.stopPropagation());
 
-  const app = createApp(AppComponent, { handlaggningId: params?.handlaggningId ?? null });
+  const app = createApp(AppComponent, {
+    handlaggningId: params?.handlaggningId ?? null,
+    authorization: params?.authorization ?? null,
+  });
 
   app.use(ValidationPlugin);
   app.use(createPinia());

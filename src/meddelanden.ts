@@ -22,3 +22,11 @@ export const OGILTIGT_PERSONNUMMER =
  */
 export const INGET_ATT_SPARA =
   "Det finns inget att spara. Fyll i personnummer eller avsikt.";
+
+/**
+ * No token from the portal, or the BFF rejected it (401). Same wording as
+ * rimfrost-regel-rtf-manuell-fe, so a handläggare gets one message for one
+ * problem whichever task they opened.
+ */
+export const SAKNAR_BEHORIGHET =
+  "Kunde inte identifiera dig som handläggare. Logga in i handläggarportalen igen och öppna uppgiften på nytt.";

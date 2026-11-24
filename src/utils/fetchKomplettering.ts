@@ -1,4 +1,4 @@
-import { getJson, kompletteringPath } from "./bffClient";
+import { felmeddelande, getJson, kompletteringPath } from "./bffClient";
 import { useKompletteringStore } from "../stores/KompletteringStore";
 import type { RtfKompletteringData } from "../types";
 
@@ -38,7 +38,7 @@ export async function fetchKomplettering(
       return null;
     }
     console.error("Error fetching komplettering:", error);
-    store.error = "Kunde inte hämta uppgiftsdata. Försök igen senare.";
+    store.error = felmeddelande(error, "Kunde inte hämta uppgiftsdata. Försök igen senare.");
     return null;
   } finally {
     // Same reason: the loader on screen belongs to the newer call.

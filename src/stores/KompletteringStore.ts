@@ -17,5 +17,12 @@ export const useKompletteringStore = defineStore("KompletteringStore", {
     uppgiftsbeskrivning: "",
     descriptionLoading: false,
     descriptionError: false,
+    /**
+     * The logged-in handläggare's full Authorization header value, from the
+     * portal (PORT-FR-03.6), or null. Set by RtfKomplettering.vue; read by
+     * bffClient. Cleared by `$reset()` like everything else, so the component
+     * sets it again after each reset.
+     */
+    authorization: null as string | null,
   }),
 });

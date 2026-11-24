@@ -28,6 +28,11 @@ function readEnv() {
     bffUrl: runtime.RUNTIME_BFF_URL || import.meta.env.VITE_BFF_URL || "",
     devHandlaggningId:
       runtime.RUNTIME_DEV_HANDLAGGNING_ID || import.meta.env.VITE_DEV_HANDLAGGNING_ID || "",
+    // Standalone only: stands in for the token the portal passes as the
+    // `authorization` prop. Never set in a deployed environment —
+    // runtime-config.js is public.
+    devAuthorization:
+      runtime.RUNTIME_DEV_AUTHORIZATION || import.meta.env.VITE_DEV_AUTHORIZATION || "",
   };
 }
 

@@ -5,12 +5,15 @@ import { env } from "./config/env";
 
 const props = defineProps<{
   handlaggningId?: string | null;
+  authorization?: string | null;
 }>();
 
 const isDev = import.meta.env.DEV;
 
 // Standalone dev has no host to pass the id, so fall back to VITE_DEV_HANDLAGGNING_ID.
 const handlaggningId = props.handlaggningId || env.devHandlaggningId;
+// Likewise the token, which the portal passes as a prop to RtfKomplettering.
+const authorization = props.authorization ?? (env.devAuthorization || null);
 </script>
 
 <template>
@@ -19,8 +22,8 @@ const handlaggningId = props.handlaggningId || env.devHandlaggningId;
       <f-page-header />
     </template>
     <f-layout-left-panel>
-      <RtfKomplettering :handlaggning-id="handlaggningId" />
+      <RtfKomplettering :handlaggning-id="handlaggningId" :authorization="authorization" />
     </f-layout-left-panel>
   </f-layout-application-template>
-  <RtfKomplettering v-else :handlaggning-id="handlaggningId" />
+  <RtfKomplettering v-else :handlaggning-id="handlaggningId" :authorization="authorization" />
 </template>
