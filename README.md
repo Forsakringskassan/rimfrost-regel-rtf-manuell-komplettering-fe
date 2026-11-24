@@ -157,7 +157,8 @@ stays open for another attempt.
 ## Tech stack
 
 - Vue 3 + TypeScript
-- Vite with `@module-federation/vite`
+- Vite with `@module-federation/vite` (pinned to the portal's version, upgrade only together
+  with the portal and all remotes; see [docs/teknisk-spec.md](docs/teknisk-spec.md))
 - Pinia for state
 - FKUI design system
 - Vitest + happy-dom for tests

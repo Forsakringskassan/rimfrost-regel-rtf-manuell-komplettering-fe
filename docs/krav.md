@@ -77,6 +77,9 @@ utan att lämna den.
   RTF Manuell Komplettering BFF.
 - **RTFKF-NFR-01.5** Saknas token ska inget anrop göras till BFF:en. Saknas token, eller avvisar
   BFF:en den (401), ska ett begripligt felmeddelande visas i stället för ett generellt fel.
+- **RTFKF-NFR-01.6** Mikrofrontenden ska byggas med samma version av `@module-federation/vite`
+  som handläggarportalen, så att delade moduler (`@fkui/vue`, `@fkui/logic`) fungerar när den
+  monteras. Versionen uppgraderas bara samtidigt i portalen och alla remotes.
 
 ### RTFKF-NFR-02 — Tillgänglighet
 

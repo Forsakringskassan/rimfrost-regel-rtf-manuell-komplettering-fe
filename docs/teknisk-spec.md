@@ -61,6 +61,17 @@ validerar personnumret med FKUI:s `personnummerLuhn`, och `valideraForKlarmarker
 samma kontroll med `parsePersonnummerLuhn` innan något når BFF:n, så knappen och fältet
 underkänner samma nummer.
 
+### Version av `@module-federation/vite`
+
+`@module-federation/vite` är låst till exakt samma version som `rimfrost-portal-handlaggare`
+(1.15.2, runtime 2.4.0), och `renovate.json` stänger av Renovate för paketet (RTFKF-NFR-01.6).
+
+Bakgrund (FKPOC-1499): med 1.23.5 (runtime 2.9.2, image 0.0.2) och senare kraschade remoten i portalen med
+`Cannot read properties of undefined (reading 'provider')`. Den nyare versionens
+loadShare-proxy för `@fkui/logic` fyller i exporterna först efter share-förhandlingen, men
+`@fkui/vue` läser `TranslationService.provider` redan när modulen laddas. Versionen ska därför
+uppgraderas samtidigt i portalen och alla remotes, aldrig i en remote för sig.
+
 ## API-specifikationer
 
 Ingen dedikerad OpenAPI-specifikation för BFF-kontraktet. BFF:ns typer kommer i sin tur från
