@@ -2,6 +2,35 @@
 
 Changelog of rimfrost-regel-rtf-manuell-komplettering-fe.
 
+## 0.0.3 (2026-11-24)
+
+### Bug Fixes
+
+-  address review comments (FKPOC-1499) ([a6afc](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/a6afce4905b96ac) LisaWedin_Ductus)  
+-  pin @module-federation/vite to the portal's 1.15.2 (FKPOC-1499) ([3404b](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/3404ba4092adefd) LisaWedin_Ductus)  
+-  address review comments (FKPOC-1497) ([baa48](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/baa48a228c7baa7) LisaWedin_Ductus)  
+-  send the portal's token as Authorization to the BFF (FKPOC-1497) ([68b6f](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/68b6f0d78af1c7b) LisaWedin_Ductus)  
+
+### Dependency updates
+
+- update forsakringskassan/.github digest to 1c8b290 (#27) ([88cb6](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/88cb6495e2f8d48) renovate[bot])  
+- update dependency @vue/test-utils to ^2.6.0 (#26) ([a3127](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/a3127b1ea6cdb5c) renovate[bot])  
+- update dependency @module-federation/vite to ^1.24.1 (#25) ([2e3a9](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/2e3a9de6edf8e1d) renovate[bot])  
+### Other changes
+
+
+## rimfrost-1_3 (2026-11-17)
+
+### Dependency updates
+
+- update dependency @vitejs/plugin-vue to ^6.0.10 (#24) ([be084](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/be084f6f290b314) renovate[bot])  
+- update dependency vite to ^7.3.7 (#23) ([c4040](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/c40402444318c3b) renovate[bot])  
+- update dependency @module-federation/vite to ^1.23.7 (#22) ([811b1](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/811b1d19c7b1855) renovate[bot])  
+- update forsakringskassan/.github digest to cbc0db8 (#21) ([b628a](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/b628a870c7028ef) renovate[bot])  
+- update dependency vue-tsc to ^3.3.13 (#20) ([1e20e](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/1e20e73958de21a) renovate[bot])  
+- update dependency @module-federation/vite to ^1.23.6 (#19) ([cf7c8](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/cf7c85ffc34624f) renovate[bot])  
+- update dependency sass-embedded to ^1.107.0 (#17) ([71b0e](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/71b0e61c0a11abd) renovate[bot])  
+- update forsakringskassan/.github digest to 625efb1 (#16) ([82adf](https://github.com/Forsakringskassan/rimfrost-regel-rtf-manuell-komplettering-fe/commit/82adfaaa0b47e51) renovate[bot])  
 ## 0.0.2 (2026-11-01)
 
 ### Dependency updates
